@@ -6,7 +6,7 @@ set -euo pipefail
 #Print each command for debugging
 set -x
 
-echo "🚀 Starting Wazuh Setup Script..."
+echo "Starting Wazuh Setup Script..."
 
 #Update the system
 sudo apt-get update -y
