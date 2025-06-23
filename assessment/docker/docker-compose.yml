@@ -1,12 +1,53 @@
-version: '3.9'
+version: "3.9"
 
 services:
-  wazuh-manager:
-    image: wazuh/wazuh-manager:latest
+  wazuh.manager:
+    container_name: wazuh.manager
+    image: wazuh/wazuh-manager:4.8.0
+    hostname: wazuh.manager
+    restart: always
     ports:
       - "1514:1514/udp"
       - "1515:1515"
       - "55000:55000"
     volumes:
       - wazuh_data:/var/ossec/data
+      - wazuh_logs:/var/ossec/logs
+    networks:
+      - wazuhnet
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: wazuh/wazuh-elasticsearch:4.8.0
+    hostname: elasticsearch
     restart: always
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - wazuhnet
+
+  kibana:
+    container_name: kibana
+    image: wazuh/wazuh-kibana:4.8.0
+    hostname: kibana
+    restart: always
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - wazuhnet
+    depends_on:
+      - elasticsearch
+
+volumes:
+  wazuh_data:
+  wazuh_logs:
+  es_data:
+
+networks:
+  wazuhnet:
+    driver: bridge
